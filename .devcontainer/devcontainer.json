@@ -1,0 +1,46 @@
+{
+  "name": "Local LLM / Letta Docker Compose",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": false,
+      "installOhMyZsh": false,
+      "upgradePackages": false
+    },
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "version": "latest",
+      "moby": true,
+      "dockerDashComposeVersion": "v2",
+      "installDockerBuildx": true
+    }
+  },
+  "remoteEnv": {
+    "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+  },
+  "containerEnv": {
+    "TZ": "Australia/Perth"
+  },
+  "mounts": [
+    "source=local-llm-bash-history,target=/commandhistory,type=volume"
+  ],
+  "remoteUser": "vscode",
+  "updateRemoteUserUID": true,
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y --no-install-recommends curl jq shellcheck ca-certificates openssh-client less tree && sudo rm -rf /var/lib/apt/lists/* && git --version && docker --version && docker compose version && jq --version && shellcheck --version | head -n 2",
+  "postStartCommand": "bash -lc 'docker info >/dev/null 2>&1 || echo \"WARNING: Docker daemon is not reachable from the dev container. Check that Docker Desktop is running.\"'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml",
+        "timonwong.shellcheck",
+        "foxundermoon.shell-format",
+        "eamodio.gitlens"
+      ],
+      "settings": {
+        "files.eol": "\n",
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true
+      }
+    }
+  }
+}
