@@ -21,7 +21,8 @@
     "TZ": "Australia/Perth"
   },
   "mounts": [
-    "source=local-llm-bash-history,target=/commandhistory,type=volume"
+    "source=local-llm-bash-history,target=/commandhistory,type=volume",
+    "source=/q/projects/,target=/external,type=bind"
   ],
   "remoteUser": "vscode",
   "updateRemoteUserUID": true,
