@@ -37,7 +37,8 @@
         "foxundermoon.shell-format",
         "mhutchie.git-graph",
         "PKief.material-icon-theme",
-        "esbenp.prettier-vscode"        
+        "esbenp.prettier-vscode",
+        "Anthropic.claude-code"        
       ],
       "settings": {
         "files.eol": "\n",
