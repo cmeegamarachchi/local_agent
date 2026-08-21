@@ -1,0 +1,17 @@
+FROM letta/letta:0.16.8
+
+USER root
+
+# Install the MCP remote bridge at the same pinned version as the existing stack.
+RUN npm install --global mcp-remote@0.1.38 \
+    && MCP_REMOTE_BIN="$(command -v mcp-remote)" \
+    && test -n "${MCP_REMOTE_BIN}" \
+    && mkdir -p /var/lib/mcp-remote \
+    && chmod 0777 /var/lib/mcp-remote \
+    && printf '%s\n' \
+        '#!/bin/sh' \
+        'set -eu' \
+        'export HOME="${MCP_REMOTE_HOME:-/var/lib/mcp-remote}"' \
+        'exec mcp-remote "$@"' \
+        > /usr/local/bin/letta-mcp-remote \
+    && chmod 0755 /usr/local/bin/letta-mcp-remote

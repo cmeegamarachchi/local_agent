@@ -1,0 +1,74 @@
+name: ${COMPOSE_PROJECT_NAME:-letta-openai}
+
+services:
+  letta:
+    build:
+      context: ${LETTA_BUILD_CONTEXT:-.}
+      dockerfile: ${LETTA_DOCKERFILE:-Dockerfile.letta}
+
+    image: ${LETTA_IMAGE:-local/letta-mcp-openai:0.1.38}
+    container_name: ${LETTA_CONTAINER_NAME:-letta-openai}
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    ports:
+      - "${LETTA_BIND_ADDRESS:-127.0.0.1}:${LETTA_PORT:-8284}:8283"
+
+    environment:
+      ACCEPTABLE_ORIGINS: >-
+        ${LETTA_ACCEPTABLE_ORIGINS:?LETTA_ACCEPTABLE_ORIGINS is not set}
+
+      # Letta's OpenAI provider integration is auto-detected from this
+      # environment variable name, so the user-facing OPEN_AI_API_KEY value
+      # from .env is mapped onto it here.
+      OPENAI_API_KEY: >-
+        ${OPEN_AI_API_KEY:?OPEN_AI_API_KEY is not set}
+
+      LETTA_DEFAULT_LLM_HANDLE: >-
+        ${LETTA_MODEL:-openai/gpt-4o-mini}
+
+      LETTA_DEFAULT_EMBEDDING_HANDLE: >-
+        ${LETTA_EMBEDDING_HANDLE:-openai/text-embedding-3-small}
+
+      LETTA_LLM_REQUEST_TIMEOUT_SECONDS: >-
+        ${LETTA_LLM_REQUEST_TIMEOUT_SECONDS:-120}
+
+      LETTA_LLM_STREAM_TIMEOUT_SECONDS: >-
+        ${LETTA_LLM_STREAM_TIMEOUT_SECONDS:-300}
+
+      SECURE: "${LETTA_SECURE:-true}"
+
+      LETTA_SERVER_PASSWORD: >-
+        ${LETTA_SERVER_PASSWORD:?LETTA_SERVER_PASSWORD is not set}
+
+      MCP_DISABLE_STDIO: "${MCP_DISABLE_STDIO:-false}"
+      MCP_CONNECT_TO_SERVER_TIMEOUT: "${MCP_CONNECT_TO_SERVER_TIMEOUT:-120}"
+      MCP_LIST_TOOLS_TIMEOUT: "${MCP_LIST_TOOLS_TIMEOUT:-120}"
+      MCP_EXECUTE_TOOL_TIMEOUT: "${MCP_EXECUTE_TOOL_TIMEOUT:-120}"
+
+      BUSINESS_MCP_URL: >-
+        ${BUSINESS_MCP_URL:?BUSINESS_MCP_URL is not set}
+
+      MCP_REMOTE_HOME: >-
+        ${MCP_REMOTE_HOME:-/var/lib/mcp-remote}
+
+    volumes:
+      - type: bind
+        source: ${EXTERNAL_LLM_ROOT}/letta-openai-postgres-data
+        target: /var/lib/postgresql/data
+
+      - type: bind
+        source: ${EXTERNAL_LLM_ROOT}/letta-openai-mcp-data
+        target: /var/lib/mcp-remote
+
+    mem_limit: ${LETTA_MEM_LIMIT:-4g}
+    memswap_limit: ${LETTA_MEMSWAP_LIMIT:-4g}
+
+    networks:
+      - agent-network
+
+networks:
+  agent-network:
+    driver: bridge
